@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — Secure Employee Portal</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; }
+        .nav { background: #1a1a2e; color: white; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
+        .nav h1 { font-size: 18px; }
+        .nav a { color: #90caf9; text-decoration: none; margin-left: 16px; }
+        .nav a:hover { color: white; }
+        .logout-btn { background: transparent; border: 1px solid #90caf9; color: #90caf9; padding: 6px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; margin-left: 16px; }
+        .container { max-width: 1000px; margin: 40px auto; padding: 0 24px; }
+        .welcome { background: white; border-radius: 12px; padding: 32px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .welcome h2 { font-size: 24px; margin-bottom: 8px; }
+        .welcome p { color: #666; }
+        .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .card h3 { font-size: 16px; color: #1a73e8; margin-bottom: 8px; }
+        .card .stat { font-size: 36px; font-weight: 700; color: #1a1a2e; }
+        .card p { color: #888; font-size: 14px; margin-top: 4px; }
+        .card a { display: inline-block; margin-top: 16px; color: #1a73e8; text-decoration: none; font-weight: 600; font-size: 14px; }
+        .info { background: #e3f2fd; border-left: 4px solid #1a73e8; padding: 16px 20px; border-radius: 0 8px 8px 0; margin-top: 24px; font-size: 14px; }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+        .badge-admin { background: #fce4ec; color: #c62828; }
+        .badge-user { background: #e8f5e9; color: #2e7d32; }
+        .badge-manager { background: #fff3e0; color: #e65100; }
+    </style>
+</head>
+<body>
+<div class="nav">
+    <h1>&#128274; Secure Employee Portal</h1>
+    <div>
+        <span th:text="'Hi, ' + ${username}">user</span>
+        <a href="/employees">Employees</a>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit" class="logout-btn">Logout</button>
+        </form>
+    </div>
+</div>
+<div class="container">
+    <div class="welcome">
+        <h2>Welcome, <span th:text="${username}">User</span></h2>
+        <p>All connections encrypted via HTTPS/TLS</p>
+    </div>
+    <div class="cards">
+        <div class="card">
+            <h3>Total Employees</h3>
+            <div class="stat" th:text="${employeeCount}">0</div>
+            <p>Records in database</p>
+            <a href="/employees">View all &rarr;</a>
+        </div>
+        <div class="card">
+            <h3>Security Status</h3>
+            <div class="stat" style="font-size:28px; color:#2e7d32;">&#9989; Active</div>
+            <p>HTTPS + BCrypt + RBAC + Parameterized Queries</p>
+        </div>
+        <div class="card">
+            <h3>Your Roles</h3>
+            <div th:each="role : ${roles}">
+                <span class="badge"
+                      th:classappend="${role.authority == 'ROLE_ADMIN'} ? 'badge-admin' : (${role.authority == 'ROLE_MANAGER'} ? 'badge-manager' : 'badge-user')"
+                      th:text="${#strings.replace(role.authority, 'ROLE_', '')}" style="font-size:16px; padding:6px 14px;">ROLE</span>
+            </div>
+            <p sec:authorize="hasRole('ADMIN')">Full CRUD access</p>
+            <p sec:authorize="hasRole('USER') and !hasRole('ADMIN')">Read-only access</p>
+        </div>
+    </div>
+    <div class="info">
+        <strong>Defense Layers:</strong> TLS/HTTPS &bull; BCrypt hashing &bull; Role-based access &bull; Parameterized queries (JPA) &bull; CSRF protection &bull; Input validation
+    </div>
+</div>
+</body>
+</html>

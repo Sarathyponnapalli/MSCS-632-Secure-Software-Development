@@ -1,0 +1,41 @@
+# ── Build output ──
+target/
+
+# ── IDE files ──
+# VS Code
+.vscode/
+
+# ── OS junk ──
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Maven ──
+*.jar
+*.war
+*.ear
+!.mvn/wrapper/maven-wrapper.jar
+
+# ── Logs ──
+*.log
+logs/
+
+# ── Spring Boot ──
+spring-shell.log
+
+# ── H2 database files ──
+*.db
+*.mv.db
+*.trace.db
+
+# ── Environment / secrets ──
+.env
+*.env
+application-local.properties
+application-prod.properties
+
+# ── KeyStore (don't push real certs to GitHub) ──
+# Uncomment the line below for production repos:
+# *.p12
+# *.jks
+# For this class project the self-signed keystore.p12 is fine to commit

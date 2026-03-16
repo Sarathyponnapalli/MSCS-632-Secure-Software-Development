@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employees — Secure Employee Portal</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; }
+        .nav { background: #1a1a2e; color: white; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
+        .nav h1 { font-size: 18px; }
+        .nav a { color: #90caf9; text-decoration: none; margin-left: 16px; }
+        .logout-btn { background: transparent; border: 1px solid #90caf9; color: #90caf9; padding: 6px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; margin-left: 16px; }
+        .container { max-width: 1100px; margin: 32px auto; padding: 0 24px; }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+        .toolbar h2 { font-size: 22px; }
+        .search-form { display: flex; gap: 8px; }
+        .search-form input { padding: 10px 16px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; width: 280px; outline: none; }
+        .search-form input:focus { border-color: #1a73e8; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+        .btn-primary { background: #1a73e8; color: white; }
+        .btn-primary:hover { background: #1557b0; }
+        .btn-success { background: #2e7d32; color: white; }
+        .btn-danger { background: #c62828; color: white; }
+        .btn-outline { background: white; color: #1a73e8; border: 2px solid #1a73e8; }
+        .btn-sm { padding: 6px 12px; font-size: 13px; }
+        .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; }
+        .alert-success { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+        .alert-error { background: #fce4ec; color: #c62828; border: 1px solid #ef9a9a; }
+        table { width: 100%; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-collapse: collapse; }
+        th { background: #1a1a2e; color: white; padding: 14px 16px; text-align: left; font-size: 13px; text-transform: uppercase; }
+        td { padding: 12px 16px; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+        tr:hover { background: #f8f9fa; }
+        .actions { display: flex; gap: 6px; }
+        .note { margin-top: 20px; padding: 12px 16px; background: #e8f5e9; border-radius: 8px; font-size: 13px; color: #2e7d32; }
+    </style>
+</head>
+<body>
+<div class="nav">
+    <h1><a href="/" style="color:white; text-decoration:none;">&#128274; Secure Employee Portal</a></h1>
+    <div>
+        <a href="/">Dashboard</a>
+        <a href="/employees">Employees</a>
+        <span style="margin-left:12px;" th:text="${username}">user</span>
+        <form th:action="@{/logout}" method="post" style="display:inline;">
+            <button type="submit" class="logout-btn">Logout</button>
+        </form>
+    </div>
+</div>
+<div class="container">
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+    <div class="toolbar">
+        <h2>Employees</h2>
+        <div style="display:flex; gap:12px; align-items:center;">
+            <form class="search-form" th:action="@{/employees}" method="get">
+                <input type="text" name="search" th:value="${search}" placeholder="Search name or email...">
+                <button type="submit" class="btn btn-primary">Search</button>
+                <a th:if="${search}" href="/employees" class="btn btn-outline">Clear</a>
+            </form>
+            <a sec:authorize="hasRole('ADMIN')" href="/employees/add" class="btn btn-success">+ Add</a>
+        </div>
+    </div>
+    <div th:if="${search}" style="margin-bottom:12px; font-size:14px; color:#666;">
+        Results for "<strong th:text="${search}">q</strong>" — <span th:text="${employees.size()}">0</span> found
+    </div>
+    <table th:if="${!employees.isEmpty()}">
+        <thead>
+        <tr>
+            <th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Job</th><th>Salary</th><th>Dept</th>
+            <th sec:authorize="hasRole('ADMIN')">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="emp : ${employees}">
+            <td th:text="${emp.employeeId}">1</td>
+            <td><strong th:text="${emp.firstName + ' ' + emp.lastName}">Name</strong></td>
+            <td th:text="${emp.email}">email</td>
+            <td th:text="${emp.phoneNumber}">phone</td>
+            <td><code th:text="${emp.jobId}" style="background:#f0f0f0; padding:2px 8px; border-radius:4px;">JOB</code></td>
+            <td th:text="'$' + ${#numbers.formatDecimal(emp.salary, 1, 'COMMA', 0, 'POINT')}">$0</td>
+            <td th:text="${emp.departmentId}">0</td>
+            <td sec:authorize="hasRole('ADMIN')">
+                <div class="actions">
+                    <a th:href="@{/employees/edit/{id}(id=${emp.employeeId})}" class="btn btn-primary btn-sm">Edit</a>
+                    <form th:action="@{/employees/delete/{id}(id=${emp.employeeId})}" method="post" style="display:inline;" onsubmit="return confirm('Delete?');">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <div th:if="${employees.isEmpty()}" style="text-align:center; padding:40px; color:#888;">
+        <p style="font-size:18px;">No employees found.</p>
+        <p th:if="${search}" style="margin-top:8px;">Try different search or <a href="/employees">view all</a>.</p>
+    </div>
+    <div class="note">&#128274; <strong>SQL Injection Protected:</strong> All searches use parameterized JPA queries.</div>
+</div>
+</body>
+</html>

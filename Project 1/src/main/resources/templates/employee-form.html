@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${action} + ' Employee'">Employee Form</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; }
+        .nav { background: #1a1a2e; color: white; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
+        .nav h1 { font-size: 18px; }
+        .nav a { color: #90caf9; text-decoration: none; margin-left: 16px; }
+        .container { max-width: 700px; margin: 40px auto; padding: 0 24px; }
+        .card { background: white; border-radius: 12px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .card h2 { font-size: 22px; margin-bottom: 24px; color: #1a1a2e; }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .group { margin-bottom: 18px; }
+        .group.full { grid-column: 1 / -1; }
+        label { display: block; font-size: 14px; font-weight: 600; color: #555; margin-bottom: 6px; }
+        input { width: 100%; padding: 10px 14px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; outline: none; }
+        input:focus { border-color: #1a73e8; }
+        .error { color: #c62828; font-size: 12px; margin-top: 4px; }
+        .buttons { display: flex; gap: 12px; margin-top: 24px; }
+        .btn { padding: 12px 24px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; text-decoration: none; }
+        .btn-primary { background: #1a73e8; color: white; }
+        .btn-cancel { background: #e0e0e0; color: #333; }
+    </style>
+</head>
+<body>
+<div class="nav">
+    <h1><a href="/" style="color:white; text-decoration:none;">&#128274; Secure Employee Portal</a></h1>
+    <div><a href="/">Dashboard</a><a href="/employees">Employees</a></div>
+</div>
+<div class="container">
+    <div class="card">
+        <h2 th:text="${action} + ' Employee'">Add Employee</h2>
+        <form th:action="@{/employees/save}" th:object="${employee}" method="post">
+            <input type="hidden" th:field="*{employeeId}">
+            <div class="row">
+                <div class="group">
+                    <label>First Name</label>
+                    <input type="text" th:field="*{firstName}" placeholder="Steven">
+                </div>
+                <div class="group">
+                    <label>Last Name *</label>
+                    <input type="text" th:field="*{lastName}" placeholder="King" required>
+                    <div th:if="${#fields.hasErrors('lastName')}" class="error" th:errors="*{lastName}"></div>
+                </div>
+                <div class="group full">
+                    <label>Email *</label>
+                    <input type="email" th:field="*{email}" placeholder="sking@company.com" required>
+                    <div th:if="${#fields.hasErrors('email')}" class="error" th:errors="*{email}"></div>
+                </div>
+                <div class="group">
+                    <label>Phone</label>
+                    <input type="text" th:field="*{phoneNumber}" placeholder="515.123.4567">
+                </div>
+                <div class="group">
+                    <label>Job ID</label>
+                    <input type="text" th:field="*{jobId}" placeholder="IT_PROG">
+                </div>
+                <div class="group">
+                    <label>Salary</label>
+                    <input type="number" th:field="*{salary}" step="0.01" min="0.01" placeholder="9000">
+                    <div th:if="${#fields.hasErrors('salary')}" class="error" th:errors="*{salary}"></div>
+                </div>
+                <div class="group">
+                    <label>Department ID</label>
+                    <input type="number" th:field="*{departmentId}" placeholder="60">
+                </div>
+            </div>
+            <div class="buttons">
+                <button type="submit" class="btn btn-primary" th:text="${action}">Save</button>
+                <a href="/employees" class="btn btn-cancel">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
